@@ -1,8 +1,10 @@
 
 h1 Login
 
-form action="login" method="post"
+form action="users/login" method="POST"
     input type="text" name="username" placeholder="Enter Username"/
-    input type="password" name="pwdigest" placeholder="Enter Password"/
+    input type="password" name="password" placeholder="Enter Password"/
     input type="submit" value="Login"/
     a style="background-color: white" href="/register" Register Account  
+
+h2  #{session[:login_message]}
