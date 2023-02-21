@@ -23,3 +23,14 @@ def get_all_usernames()
     result = db.execute('SELECT username FROM users')
     return result
 end
+
+def get_all_exercise_names()
+    db = connect_to_db('db/gym_tracker.db')
+    result = db.execute('SELECT exercise_name FROM exercises')
+    return result
+end
+
+def exercise_new()
+    db = connect_to_db('db/gym_tracker.db')
+    db.execute("")
+end

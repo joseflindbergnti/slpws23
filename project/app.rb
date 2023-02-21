@@ -23,6 +23,43 @@ get('/workouts/new')do
     slim(:'workouts/new')
 end
 
+get('/exercises')do
+    session[:exercise_new_message] = ""
+    slim(:'exercises/index')
+end
+
+get('/exercises/new')do
+    slim(:'exercises/new')
+end
+
+post('/exercises/new')do
+    exercise_name = params[:exercise_name]
+    muscle_1 = params[:muscle_1]
+    muscle_2 = params[:muscle_2]
+    muscle_3 = params[:muscle_3]
+
+    if (exercise_name == "" || muscle_1 == "")
+        session[:exercise_new_message] = "Fill in a name and at least 1 muscle"
+        redirect('/exercises/new')
+    end
+
+    exercise_name_compare = get_all_exercise_names()
+    
+    i = 0
+    while i < exercise_name_compare.length
+        if exercise_name == exercise_name_compare[i]
+            session[:exercise_new_message] = "Username is not unique"
+            redirect('/exercises/new')
+        end
+        i += 1
+    end
+
+    
+
+    redirect('/exercises/new')
+
+end
+
 get('/login')do
     slim(:login)
 end
