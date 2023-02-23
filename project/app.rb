@@ -7,7 +7,6 @@ require_relative './model.rb'
 
 enable :sessions
 
-#db = connect_to_db('db/gym_tracker.db')
 
 get('/')do
     session[:register_message] = ""
@@ -47,14 +46,15 @@ post('/exercises/new')do
     
     i = 0
     while i < exercise_name_compare.length
-        if exercise_name == exercise_name_compare[i]
-            session[:exercise_new_message] = "Username is not unique"
+        if exercise_name == exercise_name_compare[i][0]
+            session[:exercise_new_message] = "This exercise already excists"
             redirect('/exercises/new')
         end
         i += 1
     end
 
-    
+    exercise_new(exercise_name, muscle_1, muscle_2, muscle_3)
+    session[:exercise_new_message] = "You successfully added a new exercise"
 
     redirect('/exercises/new')
 
