@@ -49,7 +49,31 @@ def exercise_new(exercise_name, muscle_1, muscle_2, muscle_3)
     while i < muscle_ids.length
 
         db.execute("INSERT INTO exercise_muscle_rel (exercise_id, muscle_id) VALUES (?, ?)", exercise_id[0][0], muscle_ids[i][0])
-        
+
         i += 1
     end
+end
+
+def show_all_exercises()
+    db = connect_to_db('db/gym_tracker.db')
+
+    exercise_ids = db.execute('SELECT id FROM exercises')
+
+    array_of_exercises = []
+    i = 0
+
+    while i < exercise_ids.length
+
+        result = db.execute('SELECT exercises.exercise_name, muscles.muscle_name
+                            FROM ((exercise_muscle_rel
+                                INNER JOIN exercises ON exercise_muscle_rel.exercise_id = exercises.id)
+                                INNER JOIN muscles ON exercise_muscle_rel.muscle_id = muscles.id)
+                            WHERE exercise_id = ?', exercise_ids[i][0])
+
+        array_of_exercises.append(result)
+
+        i += 1
+    end
+
+    return array_of_exercises
 end

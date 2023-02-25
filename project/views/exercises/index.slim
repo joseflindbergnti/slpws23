@@ -1,3 +1,13 @@
 h2 Exercises
 
 a href="/exercises/new"  Add New
+
+-@array_of_exercises.each do |exercise|
+    h3 Namn: #{exercise[0][0]}
+    - i = 0
+    h4 Muskeler: 
+    -while i < exercise.length
+        p #{exercise[i][1]}
+
+        - i += 1
+    p __________

@@ -24,6 +24,9 @@ end
 
 get('/exercises')do
     session[:exercise_new_message] = ""
+
+    @array_of_exercises = show_all_exercises()
+
     slim(:'exercises/index')
 end
 
