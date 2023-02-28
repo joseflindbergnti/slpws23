@@ -31,6 +31,8 @@ get('/exercises')do
 end
 
 get('/exercises/new')do
+
+    @muscle_names = get_all_muscle_names()
     slim(:'exercises/new')
 end
 

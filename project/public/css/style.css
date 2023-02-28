@@ -2,5 +2,27 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+body{
     background-color: lightgrey;
+}
+
+header{
+    background-color: grey;
+}
+
+#exercise_form{
+    margin: 10px
+}
+
+.exercise_form_element{
+    margin: 4px;
+    width: 265px;
+}
+
+.exercise_element{
+    margin: 20px;
+    background-color: grey;
+    width: 200px;
 }

@@ -8,15 +8,16 @@ html lang="en"
         title Gym Tracker
     body 
 
-        h1 Gym Tracker 
+        header
+            h1  Gym Tracker 
 
-        - if session[:firstname] != nil && session[:firstname] != "" 
+            - if session[:firstname] != nil && session[:firstname] != "" 
             h2 Hej #{session[:firstname]}
 
-        nav 
-            a style="margin-right: 20px" href="/" start
-            a style="margin-right: 20px" href="/workouts" workouts
-            a style="margin-right: 20px" href="/exercises" exercises
-            a style="margin-right: 20px" href="/login" login
+            nav 
+                a style="margin-right: 20px" href="/" start
+                a style="margin-right: 20px" href="/workouts" workouts
+                a style="margin-right: 20px" href="/exercises" exercises
+                a style="margin-right: 20px" href="/login" login
         
         == yield   

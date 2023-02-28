@@ -30,6 +30,12 @@ def get_all_exercise_names()
     return result
 end
 
+def get_all_muscle_names()
+    db = connect_to_db('db/gym_tracker.db')
+    result = db.execute('SELECT muscle_name FROM muscles')
+    return result
+end
+
 def exercise_new(exercise_name, muscle_1, muscle_2, muscle_3)
     db = connect_to_db('db/gym_tracker.db')
 
@@ -74,6 +80,8 @@ def show_all_exercises()
 
         i += 1
     end
+
+    p array_of_exercises
 
     return array_of_exercises
 end
