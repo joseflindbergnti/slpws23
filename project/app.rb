@@ -30,6 +30,52 @@ get('/exercises')do
     slim(:'exercises/index')
 end
 
+get('/exercises/:id/edit')do
+    @exercise_id = params[:id]
+    @exercise_information = show_specific_exercise(@exercise_id)
+    slim(:'exercises/edit')
+end
+
+post('/exercises/:id/delete')do
+    id = params[:id]
+    delete_exercise(id)
+    redirect('/exercises')
+end
+
+get('/exercises/:id/update')do
+    id = params[:id]
+    @exercise_update = show_specific_exercise(id)
+    @muscle_names = get_all_muscle_names()
+    slim(:'exercises/update')
+end
+
+post('/exercises/:id/update') do
+    id = params[:id]
+    exercise_name = params[:exercise_name]
+    muscle_1 = params[:muscle_1]
+    muscle_2 = params[:muscle_2]
+    muscle_3 = params[:muscle_3]
+
+    if (exercise_name == "" || muscle_1 == "")
+        session[:exercise_update_message] = "Fill in a name and at least 1 muscle"
+        redirect('/exercises/#{id}/update')
+    end
+
+    exercise_name_compare = get_all_exercise_names()
+    
+    i = 0
+    while i < exercise_name_compare.length
+        if exercise_name == exercise_name_compare[i][0]
+            session[:exercise_update_message] = "This exercise already excists"
+            redirect('/exercises/#{id}/update')
+        end
+        i += 1
+    end
+
+    ## Lägg till så att datan uppdateras när man kommit in på denna, just nu händer ingenting
+
+end
+
 get('/exercises/new')do
 
     @muscle_names = get_all_muscle_names()

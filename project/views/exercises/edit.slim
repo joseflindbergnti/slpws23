@@ -1,0 +1,16 @@
+h1 Name: #{@exercise_information[0][0]}
+br
+h3 Id: #{@exercise_information[0][2]}
+br
+h3 Muscles: 
+
+-@exercise_information.each do |exercise|
+    p #{exercise[1]}
+
+br
+
+form method="get" action="/exercises/#{@exercise_id}/update"
+    input type="submit" value="Change Information"/
+
+form method="POST" action="/exercises/#{@exercise_id}/delete"
+    input type="submit" value="Delete"/

@@ -1,0 +1,28 @@
+h1 Update Information
+
+
+form action="update" method="POST" id="exercise_form"
+    input type="text" name="exercise_name" placeholder="#{@exercise_update[0][0]}" class="exercise_form_element"/
+    br/
+    input type="text" name="muscle_1" list="muscle_names" placeholder="#{@exercise_update[0][1]}" class="exercise_form_element"
+    br/
+    datalist id="muscle_names"
+        -@muscle_names.each do |muscles|
+            option value='#{muscles["muscle_name"]}'
+
+    - if @exercise_update[1] == nil
+        - muscle_2_message = "Do you want to add a muscle"
+    -else 
+        - muscle_2_message = @exercise_update[1][1]
+
+    input type="text" name="muscle_2" list="muscle_names" class="exercise_form_element" placeholder="#{muscle_2_message}" / 
+    br/
+   
+    - if @exercise_update[2] == nil
+        - muscle_3_message = "Do you want to add a muscle"
+    -else 
+        - muscle_3_message = @exercise_update[2][1]
+
+    input type="text" name="muscle_3" list="muscle_names" class="exercise_form_element" placeholder="#{muscle_3_message}" /
+    br/
+    input type="submit" value="Enter" class="exercise_form_element"/

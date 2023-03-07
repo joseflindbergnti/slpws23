@@ -1,5 +1,6 @@
 require 'sqlite3'
 require 'bcrypt'
+require 'sinatra/reloader'
 
 def connect_to_db(path)
     db = SQLite3::Database.new(path)
@@ -70,7 +71,7 @@ def show_all_exercises()
 
     while i < exercise_ids.length
 
-        result = db.execute('SELECT exercises.exercise_name, muscles.muscle_name
+        result = db.execute('SELECT exercises.exercise_name, muscles.muscle_name, exercises.id
                             FROM ((exercise_muscle_rel
                                 INNER JOIN exercises ON exercise_muscle_rel.exercise_id = exercises.id)
                                 INNER JOIN muscles ON exercise_muscle_rel.muscle_id = muscles.id)
@@ -81,7 +82,33 @@ def show_all_exercises()
         i += 1
     end
 
-    p array_of_exercises
-
     return array_of_exercises
+end
+
+def show_specific_exercise(exercise_id)
+    db = connect_to_db('db/gym_tracker.db')
+
+    result = db.execute('SELECT exercises.exercise_name, muscles.muscle_name, exercises.id
+                        FROM ((exercise_muscle_rel
+                            INNER JOIN exercises ON exercise_muscle_rel.exercise_id = exercises.id)
+                            INNER JOIN muscles ON exercise_muscle_rel.muscle_id = muscles.id)
+                        WHERE exercise_id = ?', exercise_id)
+
+    return result
+
+end
+
+def delete_exercise(id)
+    db = connect_to_db('db/gym_tracker.db')
+
+    db.execute('DELETE FROM exercises WHERE id = ?', id)
+    db.execute('DELETE FROM exercise_muscle_rel WHERE exercise_id = ?', id)
+
+end
+
+def edit_exercise_name(id)
+    db = connect_to_db('db/gym_tracker.db')
+
+    db.execute('UPDATE exercises SET exercise_name = ? WHERE id = ?', )
+
 end
