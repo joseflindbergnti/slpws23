@@ -19,6 +19,7 @@ get('/workouts')do
 end
 
 get('/workouts/new')do
+    @musclegroup_names = get_all_musclegroup_names()
     slim(:'workouts/new')
 end
 
@@ -56,23 +57,41 @@ post('/exercises/:id/update') do
     muscle_2 = params[:muscle_2]
     muscle_3 = params[:muscle_3]
 
+
     if (exercise_name == "" || muscle_1 == "")
         session[:exercise_update_message] = "Fill in a name and at least 1 muscle"
         redirect('/exercises/#{id}/update')
     end
 
     exercise_name_compare = get_all_exercise_names()
-    
+
     i = 0
     while i < exercise_name_compare.length
         if exercise_name == exercise_name_compare[i][0]
-            session[:exercise_update_message] = "This exercise already excists"
-            redirect('/exercises/#{id}/update')
+
+            id_compare = get_exercise_id(exercise_name_compare[i][0])
+
+            if id_compare =! id
+                session[:exercise_update_message] = "This exercise already excists"
+                redirect('/exercises/#{id}/update')
+            end
         end
         i += 1
     end
 
     ## Lägg till så att datan uppdateras när man kommit in på denna, just nu händer ingenting
+
+    if muscle_2 == ""
+        muscles_array = [muscle_1]
+    elsif muscle_3 == ""
+        muscles_array = [muscle_1, muscle_2]
+    else
+        muscles_array = [muscle_1, muscle_2, muscle_3]
+    end
+
+    edit_exercise(id, exercise_name, muscles_array)
+
+    redirect('/exercises')
 
 end
 

@@ -37,6 +37,24 @@ def get_all_muscle_names()
     return result
 end
 
+def get_all_musclegroup_names()
+    db = connect_to_db('db/gym_tracker.db')
+    result = db.execute('SELECT musclegroup_name FROM musclegroups')
+    return result
+end
+
+def get_muscle_id(muscle_name)
+    db = connect_to_db('db/gym_tracker.db')
+    result = db.execute('SELECT id FROM muscles WHERE muscle_name = ?', muscle_name)
+    return result
+end
+
+def get_exercise_id(exercise_name)
+    db = connect_to_db('db/gym_tracker.db')
+    result = db.execute('SELECT id FROM exercises WHERE exercise_name = ?', exercise_name)
+    return result
+end
+
 def exercise_new(exercise_name, muscle_1, muscle_2, muscle_3)
     db = connect_to_db('db/gym_tracker.db')
 
@@ -106,9 +124,23 @@ def delete_exercise(id)
 
 end
 
-def edit_exercise_name(id)
+def edit_exercise(exercise_id, exercise_name, muscles_array)
     db = connect_to_db('db/gym_tracker.db')
 
-    db.execute('UPDATE exercises SET exercise_name = ? WHERE id = ?', )
+    db.execute('DELETE FROM exercise_muscle_rel WHERE exercise_id = ?', exercise_id)
+
+    db.execute('UPDATE exercises SET exercise_name = ? WHERE id = ?', exercise_name, exercise_id)
+
+    i = 0
+
+    while i < muscles_array.length
+        muscle_id = get_muscle_id(muscles_array[i])
+        p muscle_id
+        p exercise_id
+        db.execute('INSERT INTO exercise_muscle_rel (exercise_id, muscle_id) VALUES (?, ?)', exercise_id, muscle_id[0][0])
+
+        i += 1
+    end
+
 
 end

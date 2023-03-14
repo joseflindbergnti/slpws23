@@ -26,3 +26,12 @@ header{
     background-color: grey;
     width: 200px;
 }
+
+#workout_form{
+    margin: 10px;
+}
+
+.workout_element{
+    margin: 4px;
+    width: 265px; 
+}

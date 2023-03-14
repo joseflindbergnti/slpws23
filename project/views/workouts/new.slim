@@ -1,4 +1,34 @@
 h1 Add workouts
 
-form action="exercises/new" method="POST"
-    input type="text" name="" placeholder=""/
+form action="/new" method="POST" id="workout_form"
+    input type="text" list="day_list" name="day" placeholder="Day" class="workout_form_element"/
+    datalist id="day_list"
+        - i = 0
+        -while i < 32
+            option value="#{i}"
+            -i += 1
+
+    input type="text" list="month_list" name="month" placeholder="Month" class="workout_form_element"/
+    datalist id="month_list"
+        option value="January"
+        option value="Febuary"
+        option value="March"
+        option value="April"
+        option value="May"
+        option value="June"
+        option value="July"
+        option value="August"
+        option value="September"
+        option value="October"
+        option value="November"
+        option value="December"
+    br/
+
+    input type="text" name="musclegroup_1" list="musclegroup_names" placeholder="What musclegroup was trained" class="workout_form_element"/
+    br/
+    datalist id="musclegroup_names"
+        -@musclegroup_names.each do |musclegroup|
+            option value='#{musclegroup["musclegroup_name"]}'
+
+    input type="text" name="musclegroup_2" list="musclegroup_names" placeholder="What other musclegroup was trained" class="workout_form_element"/
+    br/
