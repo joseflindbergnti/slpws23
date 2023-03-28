@@ -1,34 +1,58 @@
 h1 Add workouts
 
-form action="/new" method="POST" id="workout_form"
-    input type="text" list="day_list" name="day" placeholder="Day" class="workout_form_element"/
-    datalist id="day_list"
-        - i = 0
-        -while i < 32
-            option value="#{i}"
-            -i += 1
-
-    input type="text" list="month_list" name="month" placeholder="Month" class="workout_form_element"/
-    datalist id="month_list"
-        option value="January"
-        option value="Febuary"
-        option value="March"
-        option value="April"
-        option value="May"
-        option value="June"
-        option value="July"
-        option value="August"
-        option value="September"
-        option value="October"
-        option value="November"
-        option value="December"
+form action="/workouts/new" method="POST" id="workout_form"
+    label for="date" Choose Date 
     br/
-
-    input type="text" name="musclegroup_1" list="musclegroup_names" placeholder="What musclegroup was trained" class="workout_form_element"/
+    input type="date" name="date" id="date" /
+    br/ 
+    label for="muscle_group" What musclegroups are trained 
+    br/
+    input type="text" name="musclegroup_1" list="musclegroup_names" placeholder="Musclegroup 1" id="muscle_group" /
     br/
     datalist id="musclegroup_names"
         -@musclegroup_names.each do |musclegroup|
             option value='#{musclegroup["musclegroup_name"]}'
 
-    input type="text" name="musclegroup_2" list="musclegroup_names" placeholder="What other musclegroup was trained" class="workout_form_element"/
+    input type="text" name="musclegroup_2" list="musclegroup_names" placeholder="Musclegroup 2" /
     br/
+
+    label for="exercises" What exercises where trained
+    br/
+
+    datalist id="exercise_names"
+        -@exercise_names.each do |exercise|
+            option value='#{exercise["exercise_name"]}'
+
+    input type="text" name="exercise_1" list="exercise_names" placeholder="Exercise 1" /
+    input type="number" name="weight_1" placeholder="Weight (kg)" min="0"/
+    input type="number" name="reps_1" placeholder="Repitions" min="1" /
+    input type="number" name="sets_1" placeholder="Sets" min="1"/
+
+    br/
+    input type="text" name="exercise_2" list="exercise_names" placeholder="Exercise 2" /
+    input type="text" name="weight_2" placeholder="Weight (kg)" min="0"/
+    input type="number" name="reps_2" placeholder="Repitions" min="1"/
+    input type="number" name="sets_2" placeholder="Sets" min="1"/
+
+    br/
+    input type="text" name="exercise_3" list="exercise_names" placeholder="Exercise 3" /
+    input type="text" name="weight_3" placeholder="Weight (kg)" min="0"/
+    input type="number" name="reps_3" placeholder="Repitions" min="1"/
+    input type="number" name="sets_3" placeholder="Sets" min="1"/
+
+    br/
+    input type="text" name="exercise_4" list="exercise_names" placeholder="Exercise 4" /
+    input type="text" name="weight_4" placeholder="Weight (kg)" min="0"/
+    input type="number" name="reps_4" placeholder="Repitions" min="1"/
+    input type="number" name="sets_4" placeholder="Sets" min="1"/
+
+    br/
+    input type="text" name="exercise_5" list="exercise_names" placeholder="Exercise 5" /
+    input type="text" name="weight_5" placeholder="Weight (kg)" min="0"/
+    input type="number" name="reps_5" placeholder="Repitions" min="1"/
+    input type="number" name="sets_5" placeholder="Sets" min="1"/
+
+    br/
+    input type="submit" value="Create Workout"/
+
+    h2 #{session[:workout_new_message]}

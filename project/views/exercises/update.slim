@@ -1,7 +1,7 @@
 h1 Update Information
 
 
-form action="update" method="POST" id="exercise_form"
+form action="/exercises/#{@id}/update" method="POST" id="exercise_form"
     input type="text" name="exercise_name" placeholder="#{@exercise_update[0][0]}" class="exercise_form_element"/
     br/
     input type="text" name="muscle_1" list="muscle_names" placeholder="#{@exercise_update[0][1]}" class="exercise_form_element"
@@ -26,3 +26,5 @@ form action="update" method="POST" id="exercise_form"
     input type="text" name="muscle_3" list="muscle_names" class="exercise_form_element" placeholder="#{muscle_3_message}" /
     br/
     input type="submit" value="Enter" class="exercise_form_element"/
+
+h2 #{session[:exercise_update_message]}
