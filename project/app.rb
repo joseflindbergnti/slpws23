@@ -39,7 +39,7 @@ end
 post('/workouts/new')do
     date = params[:date]
 
-    if date == ""
+    if date == "" ##sök igenom databas4en så at de inte finns två på samma datum för användaren
         session[:workout_new_message] = "Choose a date"
         redirect('/workouts/new')
     end
@@ -147,8 +147,7 @@ post('/workouts/new')do
     if workout_exercise_array == []
         session[:workout_new_message] = "Fill in atleast 1 exercise"
     end
-    
-    p workout_exercise_array
+
     user_id = 1 #temporär
     workout_new(user_id, date, musclegroup_1, musclegroup_2, workout_exercise_array)
 

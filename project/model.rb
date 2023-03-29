@@ -154,22 +154,22 @@ def workout_new(user_id, date, musclegroup_1, musclegroup_2, exercise_array)
 
     db.execute('INSERT INTO workouts (user_id, date) VALUES (?, ?)', user_id, date)  
     workout_id = db.execute('SELECT id FROM workouts WHERE user_id = ? AND date = ?', user_id, date)
+    workout_id = workout_id[0][0]
     
     musclegroup_1_id = get_musclegroup_id(musclegroup_1)
     musclegroup_1_id = musclegroup_1_id[0][0]
+
     db.execute('INSERT INTO workout_musclegroup_rel (workout_id, musclegroup_id) VALUES (?, ?)', workout_id, musclegroup_1_id)
 
     if musclegroup_2 != ""
         musclegroup_2_id = get_musclegroup_id(musclegroup_2)
-        db.execute('INSERT INTO workout_musclegroup_rel (workout_id, musclegroup_id) VALUES (?, ?)', workout_id, musclegroup_2_id)
+        db.execute('INSERT INTO workout_musclegroup_rel (workout_id, musclegroup_id) VALUES (?, ?)', workout_id, musclegroup_2_id[0][0])
     end
 
     i = 0
     while i < exercise_array.length
-        exercise_id = get_exercise_id(exercise_array[i][0])
-        exercise_id = exercise_id[0][0]
-        db.execute('INSERT INTO workout_exercise_rel (workout_id, exercise_id, weight, reps, sets) 
-        VALUES (?, ?, ?, ?, ?)', workout_id, exercise_id, exercise_array[i][1], exercise_array[i][2], exercise_array[i][3])
+        exercise_id = get_exercise_id(exercise_array[i][:exercise_name])
+        db.execute('INSERT INTO workout_exercise_rel (workout_id, exercise_id, weight, reps, sets) VALUES (?, ?, ?, ?, ?)', workout_id, exercise_id[0][0], exercise_array[i][:weight], exercise_array[i][:reps], exercise_array[i][:sets])
         i += 1
     end
 
