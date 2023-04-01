@@ -1,3 +1,30 @@
 h2 My Workouts
 
-a href="/workouts/new"  Add New 
+a href="/workouts/new"  Add New     
+
+- if @array_of_workouts == []
+    h2 You don't have any workouts yet 
+- else
+    -@array_of_workouts.each do |workouts|
+        nav  class="exercise_element"
+            h3 Date: #{workouts[:date]}
+            h3 Musclegroup:
+            -workouts[:musclegroups].each do |musclegroup|
+                p #{musclegroup[0]}
+            h3 Exercises: 
+            -workouts[:exercises].each do |exercise|
+                p Name: #{exercise[:exercise_name]}
+                - if exercise[:weight] == "" 
+                    - weight = 0
+                - else 
+                    - weight = exercise[:weight]
+                p Weight: #{weight}kg
+                p Reps: #{exercise[:reps]}
+                p Sets: #{exercise[:sets]}
+                br/
+
+            a href="/workouts/id/edit" Edit Information 
+            - ##lägg till i edit så att det kollar så att rätt är inloggad
+            
+            br/
+    

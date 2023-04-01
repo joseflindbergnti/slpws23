@@ -1,6 +1,7 @@
 h2 Exercises
 
-a href="/exercises/new"  Add New
+- if session[:user_id] != nil
+    a href="/exercises/new"  Add New
 
 -@array_of_exercises.each do |exercise|
     nav  class="exercise_element"
@@ -12,4 +13,6 @@ a href="/exercises/new"  Add New
             p #{exercise[i][1]}
 
             - i += 1
-        a href="/exercises/#{exercise[0][2]}/edit" Edit
+
+        - if session[:user_id] == 1
+            a href="/exercises/#{exercise[0][2]}/edit" Edit

@@ -14,9 +14,20 @@ get('/')do
     slim(:index)
 end
 
+get('/error')do
+    slim(:error)
+end
+
 get('/workouts')do
     session[:workout_new_message] = ""
-    slim(:'workouts/index')
+    if session[:user_id] == nil
+        session[:login_message] = "You need to login to have access workouts"
+        redirect('/login')
+    else
+        user_id = session[:user_id] ##fråga om detta är sättet som man ska spara användardatan
+        @array_of_workouts = show_workouts(user_id)
+        slim(:'workouts/index')
+    end
 end
 
 get('/workouts/new')do
@@ -148,7 +159,7 @@ post('/workouts/new')do
         session[:workout_new_message] = "Fill in atleast 1 exercise"
     end
 
-    user_id = 1 #temporär
+    user_id = session[:user_id]
     workout_new(user_id, date, musclegroup_1, musclegroup_2, workout_exercise_array)
 
     redirect('/workouts/new')
@@ -163,9 +174,14 @@ get('/exercises')do
 end
 
 get('/exercises/:id/edit')do
-    @exercise_id = params[:id]
-    @exercise_information = show_specific_exercise(@exercise_id)
-    slim(:'exercises/edit')
+    if session[:user_id] != 1
+        session[:error_message] = "You do not have access to this functionality"
+        redirect('/error')
+    else
+        @exercise_id = params[:id]
+        @exercise_information = show_specific_exercise(@exercise_id)
+        slim(:'exercises/edit')
+    end
 end
 
 post('/exercises/:id/delete')do
@@ -247,6 +263,19 @@ get('/exercises/new')do
     slim(:'exercises/new')
 end
 
+def check_muscle_name(muscle_name)
+    muscle_compare = get_all_muscle_names()
+    i = 0
+    while i < muscle_compare.length
+        if muscle_compare[i][0] == muscle_name
+            return true
+        end
+
+        i += 1
+    end
+    return false
+end
+
 post('/exercises/new')do
     exercise_name = params[:exercise_name]
     muscle_1 = params[:muscle_1]
@@ -269,21 +298,15 @@ post('/exercises/new')do
         i += 1
     end
 
-    muscle_compare = get_all_muscle_names()
-
-    i = 0
-    while i < muscle_compare.length
-        if muscle_1 != muscle_compare[i][0]
-            session[:exercise_new_message] = "Muscle 1 does not exist"
-            redirect('/exercises/new')
-        elsif muscle_2 != muscle_compare[i][0]
-            session[:exercise_new_message] = "Muscle 2 does not exist"
-            redirect('/exercises/new')
-        elsif muscle_2 != muscle_compare[i][0]
-            session[:exercise_new_message] = "Muscle 3 does not exist"
-            redirect('/exercises/new')
-        end
-        i += 1
+    if check_muscle_name(muscle_1) == false
+        session[:exercise_new_message] = "Muscle 1 does not exist"
+        redirect('/exercises/new')
+    elsif check_muscle_name(muscle_2) == false
+        session[:exercise_new_message] = "Muscle 2 does not exist"
+        redirect('/exercises/new')
+    elsif check_muscle_name(muscle_3) == false
+        session[:exercise_new_message] = "Muscle 3 does not exist"
+        redirect('/exercises/new')
     end
 
     exercise_new(exercise_name, muscle_1, muscle_2, muscle_3)
@@ -315,7 +338,7 @@ post('/users/login') do
             id = result['id']
             firstname = result['firstname']
             if BCrypt::Password.new(pwdigest) == password  
-                session[:id] = id
+                session[:user_id] = id
                 session[:firstname] = firstname
                 redirect('/')
             else
@@ -356,11 +379,22 @@ post('/users/new') do
 
         password_digest =BCrypt::Password.create(password)
         register_user(username, firstname, password_digest)
+        
+        
+        session[:user_id] = get_user_id(username)[0][0]
+        session[:firstname] = get_user_firstname(username)[0][0]
         redirect('/')
     else
         session[:register_message] = "Passwords did not match"
         redirect('/register')
     end
 
+end
+
+post('/users/logout')do
+    session[:login_message] = "You have logged out"
+    session[:user_id] = nil
+    session[:firstname] = nil
+    redirect('/login')
 end
 

@@ -14,6 +14,18 @@ def get_all_for_username(username)
     return result
 end
 
+def get_user_id(username)
+    db = connect_to_db()
+    result = db.execute('SELECT id FROM users WHERE username = ?', username)
+    return result
+end
+
+def get_user_firstname(username)
+    db = connect_to_db()
+    result = db.execute('SELECT firstname FROM users WHERE username = ?', username)
+    return result
+end
+
 def register_user(username, firstname, password_digest)
     db = connect_to_db()
     db.execute("INSERT INTO users (username, firstname, pwdigest) VALUES (?, ?, ?)", username, firstname, password_digest)
@@ -173,4 +185,53 @@ def workout_new(user_id, date, musclegroup_1, musclegroup_2, exercise_array)
         i += 1
     end
 
+end
+
+def show_workouts(user_id)
+    db = connect_to_db()
+
+    array_of_workouts = []
+
+    workout_id = db.execute('SELECT id FROM workouts WHERE user_id = ?', user_id)
+
+    i = 0
+    while i < workout_id.length
+        exercise_names = db.execute('SELECT exercises.exercise_name 
+                                FROM(workout_exercise_rel
+                                    INNER JOIN exercises ON workout_exercise_rel.exercise_id = exercises.id)
+                                WHERE workout_id = ?', workout_id[i][0])
+        k = 0
+        exercise_array = []
+        while k < exercise_names.length
+            exercise_id = get_exercise_id(exercise_names[k][0])
+
+            weight = db.execute('SELECT weight FROM workout_exercise_rel WHERE workout_id = ? AND exercise_id = ?', workout_id[i][0], exercise_id[0][0] )
+            reps = db.execute('SELECT reps FROM workout_exercise_rel WHERE workout_id = ? AND exercise_id = ?', workout_id[i][0], exercise_id[0][0] )
+            sets = db.execute('SELECT sets FROM workout_exercise_rel WHERE workout_id = ? AND exercise_id = ?', workout_id[i][0], exercise_id[0][0] )
+            
+            exercise_array.append({
+                exercise_name: exercise_names[k][0],
+                weight: weight[0][0],
+                reps: reps[0][0],
+                sets: sets[0][0]
+            })
+            k += 1
+        end
+        
+        musclegroup_names = db.execute('SELECT musclegroups.musclegroup_name
+                                        FROM (workout_musclegroup_rel
+                                            INNER JOIN musclegroups ON workout_musclegroup_rel.musclegroup_id = musclegroups.id)
+                                        WHERE workout_id = ?', workout_id[i][0])
+        date = db.execute('SELECT date FROM workouts WHERE id= ?', workout_id[i][0])
+        
+        array_of_workouts.append({
+            date: date[0][0],
+            musclegroups: musclegroup_names,
+            exercises: exercise_array
+        })
+
+        i += 1  
+    end
+
+    return array_of_workouts
 end
