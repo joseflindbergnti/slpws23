@@ -64,7 +64,7 @@ get('/workouts/:id/update')do
         session[:error_message] = "You do not have the ownership of this workout"
         redirect('/error')
     end
-    
+
     @musclegroup_names = get_all_musclegroup_names()
     @exercise_names = get_all_exercise_names()
     @workout = show_specific_workout(workout_id)
@@ -270,6 +270,22 @@ get('/exercises/:id/update')do
     slim(:'exercises/update')
 end
 
+def check_muscle_name(muscle_name)
+    if muscle_name == ""
+        return true
+    end
+    muscle_compare = get_all_muscle_names()
+    i = 0
+    while i < muscle_compare.length
+        if muscle_compare[i][0] == muscle_name
+            return true
+        end
+
+        i += 1
+    end
+    return false
+end
+
 post('/exercises/:id/update') do
     id = params[:id]
     exercise_name = params[:exercise_name]
@@ -290,8 +306,8 @@ post('/exercises/:id/update') do
         if exercise_name == exercise_name_compare[i][0]
 
             id_compare = get_exercise_id(exercise_name_compare[i][0])
-
-            if id_compare != id
+            
+            if id_compare[0][0] != id.to_i
                 session[:exercise_update_message] = "This exercise already excists"
                 redirect("/exercises/#{id}/update")
             end
@@ -299,21 +315,15 @@ post('/exercises/:id/update') do
         i += 1
     end
 
-    muscle_compare = get_all_muscle_names()
-
-    i = 0
-    while i < muscle_compare.length
-        if muscle_1 != muscle_compare[i][0]
-            session[:exercise_update_message] = "Muscle 1 does not exist"
-            redirect("/exercises/#{id}/update")
-        elsif muscle_2 != muscle_compare[i][0]
-            session[:exercise_update_message] = "Muscle 2 does not exist"
-            redirect("/exercises/#{id}/update")
-        elsif muscle_2 != muscle_compare[i][0]
-            session[:exercise_update_message] = "Muscle 3 does not exist"
-            redirect("/exercises/#{id}/update")
-        end
-        i += 1
+    if check_muscle_name(muscle_1) == false
+        session[:exercise_update_message] = "Muscle 1 does not exist"
+        redirect("/exercises/#{id}/update")
+    elsif check_muscle_name(muscle_2) == false
+        session[:exercise_update_message] = "Muscle 2 does not exist"
+        redirect("/exercises/#{id}/update")
+    elsif check_muscle_name(muscle_3) == false
+        session[:exercise_update_message] = "Muscle 3 does not exist"
+        redirect("/exercises/#{id}/update")
     end
 
     if muscle_2 == ""
@@ -334,19 +344,6 @@ get('/exercises/new')do
 
     @muscle_names = get_all_muscle_names()
     slim(:'exercises/new')
-end
-
-def check_muscle_name(muscle_name)
-    muscle_compare = get_all_muscle_names()
-    i = 0
-    while i < muscle_compare.length
-        if muscle_compare[i][0] == muscle_name
-            return true
-        end
-
-        i += 1
-    end
-    return false
 end
 
 post('/exercises/new')do
