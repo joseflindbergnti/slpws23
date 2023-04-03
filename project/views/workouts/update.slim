@@ -1,12 +1,13 @@
 h1 Add workouts
-
-form action="/workouts/new" method="POST" id="workout_form"
+- ###lägg till placeholders med @workout
+form action="/workouts/#{@workout[:id]}/update" method="POST" id="workout_form"
     label for="date" Choose Date 
     br/
-    input type="date" name="date" id="date" /
+    input type="date" name="date" id="date"/
     br/ 
     label for="muscle_group" What musclegroups are trained 
     br/
+
     input type="text" name="musclegroup_1" list="musclegroup_names" placeholder="Musclegroup 1" id="muscle_group" /
     br/
     datalist id="musclegroup_names"

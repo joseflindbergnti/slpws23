@@ -18,6 +18,14 @@ get('/error')do
     slim(:error)
 end
 
+def check_if_user_is_logged_in()
+    if session[:user_id] == nil
+        return false
+    else 
+        return true
+    end
+end
+
 get('/workouts')do
     session[:workout_new_message] = ""
     if session[:user_id] == nil
@@ -30,14 +38,61 @@ get('/workouts')do
     end
 end
 
+get('/workouts/:id/edit')do
+    if check_if_user_is_logged_in() == false
+        session[:error_message] = "You do not have access to this functionality"
+        redirect('/error')
+    end
+    workout_id = params[:id]
+    if get_workout_user(workout_id)[0][0] != session[:user_id]
+        session[:error_message] = "You do not have the ownership of this workout"
+        redirect('/error')
+    end
+
+    @workout = show_specific_workout(workout_id)
+    slim(:'workouts/edit')
+
+end
+
+get('/workouts/:id/update')do
+    if check_if_user_is_logged_in() == false
+        session[:error_message] = "You do not have access to this functionality"
+        redirect('/error')
+    end
+    workout_id = params[:id]
+    if get_workout_user(workout_id)[0][0] != session[:user_id]
+        session[:error_message] = "You do not have the ownership of this workout"
+        redirect('/error')
+    end
+    
+    @musclegroup_names = get_all_musclegroup_names()
+    @exercise_names = get_all_exercise_names()
+    @workout = show_specific_workout(workout_id)
+    slim(:'workouts/update')
+
+end
+
 get('/workouts/new')do
     @musclegroup_names = get_all_musclegroup_names()
     @exercise_names = get_all_exercise_names()
     slim(:'workouts/new')
 end
 
-def check_workout_inputs(reps, sets, number)
-    if reps == ""
+def check_workout_inputs(exercise, reps, sets, number)
+    exercise_names = get_all_exercise_names()
+    i = 0
+    k = 0
+    while i < exercise_names.length
+        if exercise_names[i][0] == exercise
+            k += 1
+        end
+        i += 1
+    end
+
+    if k == 0
+        session[:workout_new_message] = "Exercise #{number} does not exist"
+        return false
+    elsif reps == ""
         session[:workout_new_message] = "Add reps to exercise #{number}"
         return false
     elsif sets == ""
@@ -48,12 +103,30 @@ def check_workout_inputs(reps, sets, number)
 end
 
 post('/workouts/new')do
-    date = params[:date]
 
-    if date == "" ##sök igenom databas4en så at de inte finns två på samma datum för användaren
+    if check_if_user_is_logged_in() == false
+        session[:error_message] = "You do not have access to this functionality"
+        redirect('/error')
+    end
+
+    date = params[:date]
+    
+
+    if date == ""
         session[:workout_new_message] = "Choose a date"
         redirect('/workouts/new')
     end
+
+    date_compare = get_dates_for_workouts(session[:user_id])
+    i = 0
+    while i < date_compare.length
+        if date == date_compare[i][0]
+            session[:workout_new_message] = "You already have a workout on this day"
+            redirect('/workouts/new')
+        end
+        i += 1
+    end
+
 
     musclegroup_1 = params[:musclegroup_1]
     musclegroup_2 = params[:musclegroup_2]
@@ -71,7 +144,7 @@ post('/workouts/new')do
         reps_1 = params[:reps_1]
         sets_1 = params[:sets_1]
 
-        if check_workout_inputs(reps_1, sets_1, 1) == true
+        if check_workout_inputs(exercise_1, reps_1, sets_1, 1) == true
             workout_exercise_array.append({
                 exercise_name: exercise_1,
                 weight: weight_1,
@@ -89,7 +162,7 @@ post('/workouts/new')do
         reps_2 = params[:reps_2]
         sets_2 = params[:sets_2]
 
-        if check_workout_inputs(reps_2, sets_2, 2) == true
+        if check_workout_inputs(exercise_2, reps_2, sets_2, 2) == true
             workout_exercise_array.append({
                 exercise_name: exercise_2,
                 weight: weight_2,
@@ -107,7 +180,7 @@ post('/workouts/new')do
         reps_3 = params[:reps_3]
         sets_3 = params[:sets_3]
 
-        if check_workout_inputs(reps_3, sets_3, 3) == true
+        if check_workout_inputs(exercise_3, reps_3, sets_3, 3) == true
             workout_exercise_array.append({
                 exercise_name: exercise_3,
                 weight: weight_3,
@@ -125,7 +198,7 @@ post('/workouts/new')do
         reps_4 = params[:reps_4]
         sets_4 = params[:sets_4]
 
-        if check_workout_inputs(reps_4, sets_4, 4) == true
+        if check_workout_inputs(exercise_4, reps_4, sets_4, 4) == true
             workout_exercise_array.append({
                 exercise_name: exercise_4,
                 weight: weight_4,
@@ -143,7 +216,7 @@ post('/workouts/new')do
         reps_5 = params[:reps_5]
         sets_5 = params[:sets_5]
 
-        if check_workout_inputs(reps_5, sets_5, 5) == true
+        if check_workout_inputs(exercise_5, reps_5, sets_5, 5) == true
             workout_exercise_array.append({
                 exercise_name: exercise_5,
                 weight: weight_5,

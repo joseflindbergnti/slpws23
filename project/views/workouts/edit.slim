@@ -1,0 +1,25 @@
+h1 Date: #{@workout[:date]}
+br/
+
+h2 Musclegroup:
+-@workout[:musclegroups].each do |musclegroup|
+    p #{musclegroup[0]}
+br/
+
+h2 Exercises: 
+-@workout[:exercises].each do |exercise|
+    p Name: #{exercise[:exercise_name]}
+    - if exercise[:weight] == "" 
+        - weight = 0
+    - else 
+        - weight = exercise[:weight]
+    p Weight: #{weight}kg
+    p Reps: #{exercise[:reps]}
+    p Sets: #{exercise[:sets]}
+    br/
+
+form method="get" action="/workouts/#{@workout[:id]}/update"
+    input type="submit" value="Change Information"/
+
+form method="POST" action="/workouts/#{@workout[:id]}/delete"
+    input type="submit" value="Delete"/
