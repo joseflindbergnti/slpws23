@@ -28,6 +28,7 @@ end
 
 get('/workouts')do
     session[:workout_new_message] = ""
+    session[:workout_update_message] = ""
     if session[:user_id] == nil
         session[:login_message] = "You need to login to have access workouts"
         redirect('/login')
@@ -69,6 +70,146 @@ get('/workouts/:id/update')do
     @exercise_names = get_all_exercise_names()
     @workout = show_specific_workout(workout_id)
     slim(:'workouts/update')
+end
+
+post('/workouts/:id/update')do
+    workout_id = params[:id]
+
+    if check_if_user_is_logged_in() == false
+        session[:error_message] = "You do not have access to this functionality"
+        redirect('/error')
+    end
+
+    date = params[:date]
+    
+
+    if date == ""
+        session[:workout_update_message] = "Choose a date"
+        redirect("/workouts/#{workout_id}/update")
+    end
+
+    date_compare = get_dates_for_workouts(session[:user_id])
+    i = 0
+    while i < date_compare.length
+        if date == date_compare[i][0]
+            if session[:user_id] != get_workout_user(workout_id)[0][0]
+                session[:workout_update_message] = "You already have a workout on this day"
+                redirect("/workouts/#{workout_id}/update")
+            end 
+        end
+        i += 1
+    end
+
+
+    musclegroup_1 = params[:musclegroup_1]
+    musclegroup_2 = params[:musclegroup_2]
+
+    if musclegroup_1 == ""
+        session[:workout_update_message] = "Choose at least one musclegroup"
+        redirect("/workouts/#{workout_id}/update")
+    end
+
+    workout_exercise_array = []
+
+    exercise_1 = params[:exercise_1]
+    if exercise_1 != ""
+        weight_1 = params[:weight_1]
+        reps_1 = params[:reps_1]
+        sets_1 = params[:sets_1]
+
+        if check_workout_inputs(exercise_1, reps_1, sets_1, 1) == true
+            workout_exercise_array.append({
+                exercise_name: exercise_1,
+                weight: weight_1,
+                reps: reps_1,
+                sets: sets_1
+            })
+        else
+            redirect("/workouts/#{workout_id}/update")
+        end
+    end
+
+    exercise_2 = params[:exercise_2]
+    if exercise_2 != ""
+        weight_2 = params[:weight_2]
+        reps_2 = params[:reps_2]
+        sets_2 = params[:sets_2]
+
+        if check_workout_inputs(exercise_2, reps_2, sets_2, 2) == true
+            workout_exercise_array.append({
+                exercise_name: exercise_2,
+                weight: weight_2,
+                reps: reps_2,
+                sets: sets_2
+            })
+        else
+            redirect("/workouts/#{workout_id}/update")
+        end
+    end
+
+    exercise_3 = params[:exercise_3]
+    if exercise_3 != ""
+        weight_3 = params[:weight_3]
+        reps_3 = params[:reps_3]
+        sets_3 = params[:sets_3]
+
+        if check_workout_inputs(exercise_3, reps_3, sets_3, 3) == true
+            workout_exercise_array.append({
+                exercise_name: exercise_3,
+                weight: weight_3,
+                reps: reps_3,
+                sets: sets_3
+            })
+        else
+            redirect("/workouts/#{workout_id}/update")
+        end
+    end
+
+    exercise_4 = params[:exercise_4]
+    if exercise_4 != ""
+        weight_4 = params[:weight_4]
+        reps_4 = params[:reps_4]
+        sets_4 = params[:sets_4]
+
+        if check_workout_inputs(exercise_4, reps_4, sets_4, 4) == true
+            workout_exercise_array.append({
+                exercise_name: exercise_4,
+                weight: weight_4,
+                reps: reps_4,
+                sets: sets_4
+            })
+        else
+            redirect("/workouts/#{workout_id}/update")
+        end
+    end
+
+    exercise_5 = params[:exercise_5]
+    if exercise_5 != ""
+        weight_5 = params[:weight_5]
+        reps_5 = params[:reps_5]
+        sets_5 = params[:sets_5]
+
+        if check_workout_inputs(exercise_5, reps_5, sets_5, 5) == true
+            workout_exercise_array.append({
+                exercise_name: exercise_5,
+                weight: weight_5,
+                reps: reps_5,
+                sets: sets_5
+            })
+        else
+            redirect("/workouts/#{workout_id}/update")
+        end
+    end
+
+    if workout_exercise_array == []
+        session[:workout_update_message] = "Fill in atleast 1 exercise"
+    end
+
+    user_id = session[:user_id]
+
+    workout_update(workout_id, date, musclegroup_1, musclegroup_2, workout_exercise_array)
+
+    redirect('/workouts')
 
 end
 
@@ -236,6 +377,12 @@ post('/workouts/new')do
     workout_new(user_id, date, musclegroup_1, musclegroup_2, workout_exercise_array)
 
     redirect('/workouts/new')
+end
+
+post('/workouts/:id/delete')do
+    id = params[:id]
+    delete_workout(id)
+    redirect('/workouts')
 end
 
 get('/exercises')do

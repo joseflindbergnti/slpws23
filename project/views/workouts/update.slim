@@ -1,59 +1,81 @@
 h1 Add workouts
-- ###lägg till placeholders med @workout
-form action="/workouts/#{@workout[:id]}/update" method="POST" id="workout_form"
-    label for="date" Choose Date 
-    br/
-    input type="date" name="date" id="date"/
-    br/ 
-    label for="muscle_group" What musclegroups are trained 
-    br/
+div id="workout_update"
+    form action="/workouts/#{@workout[:id]}/update" method="POST" id="workout_form_edit"
+        label for="date" Choose Date 
+        br/
+        input type="date" name="date" id="date"/
+        br/ 
+        label for="muscle_group" What musclegroups are trained 
+        br/
 
-    input type="text" name="musclegroup_1" list="musclegroup_names" placeholder="Musclegroup 1" id="muscle_group" /
-    br/
-    datalist id="musclegroup_names"
-        -@musclegroup_names.each do |musclegroup|
-            option value='#{musclegroup["musclegroup_name"]}'
+        input type="text" name="musclegroup_1" list="musclegroup_names" placeholder="Musclegroup 1" id="muscle_group" /
+        br/
+        datalist id="musclegroup_names"
+            -@musclegroup_names.each do |musclegroup|
+                option value='#{musclegroup["musclegroup_name"]}'
 
-    input type="text" name="musclegroup_2" list="musclegroup_names" placeholder="Musclegroup 2" /
-    br/
+        input type="text" name="musclegroup_2" list="musclegroup_names" placeholder="Musclegroup 2" /
+        br/
 
-    label for="exercises" What exercises where trained
-    br/
+        label for="exercises" What exercises where trained
+        br/
 
-    datalist id="exercise_names"
-        -@exercise_names.each do |exercise|
-            option value='#{exercise["exercise_name"]}'
+        datalist id="exercise_names"
+            -@exercise_names.each do |exercise|
+                option value='#{exercise["exercise_name"]}'
 
-    input type="text" name="exercise_1" list="exercise_names" placeholder="Exercise 1" /
-    input type="number" name="weight_1" placeholder="Weight (kg)" min="0"/
-    input type="number" name="reps_1" placeholder="Repitions" min="1" /
-    input type="number" name="sets_1" placeholder="Sets" min="1"/
+        input type="text" name="exercise_1" list="exercise_names" placeholder="Exercise 1" /
+        input type="number" name="weight_1" placeholder="Weight (kg)" min="0"/
+        input type="number" name="reps_1" placeholder="Repitions" min="1" /
+        input type="number" name="sets_1" placeholder="Sets" min="1"/
 
-    br/
-    input type="text" name="exercise_2" list="exercise_names" placeholder="Exercise 2" /
-    input type="number" name="weight_2" placeholder="Weight (kg)" min="0"/
-    input type="number" name="reps_2" placeholder="Repitions" min="1"/
-    input type="number" name="sets_2" placeholder="Sets" min="1"/
+        br/
+        input type="text" name="exercise_2" list="exercise_names" placeholder="Exercise 2" /
+        input type="number" name="weight_2" placeholder="Weight (kg)" min="0"/
+        input type="number" name="reps_2" placeholder="Repitions" min="1"/
+        input type="number" name="sets_2" placeholder="Sets" min="1"/
 
-    br/
-    input type="text" name="exercise_3" list="exercise_names" placeholder="Exercise 3" /
-    input type="number" name="weight_3" placeholder="Weight (kg)" min="0"/
-    input type="number" name="reps_3" placeholder="Repitions" min="1"/
-    input type="number" name="sets_3" placeholder="Sets" min="1"/
+        br/
+        input type="text" name="exercise_3" list="exercise_names" placeholder="Exercise 3" /
+        input type="number" name="weight_3" placeholder="Weight (kg)" min="0"/
+        input type="number" name="reps_3" placeholder="Repitions" min="1"/
+        input type="number" name="sets_3" placeholder="Sets" min="1"/
 
-    br/
-    input type="text" name="exercise_4" list="exercise_names" placeholder="Exercise 4" /
-    input type="number" name="weight_4" placeholder="Weight (kg)" min="0"/
-    input type="number" name="reps_4" placeholder="Repitions" min="1"/
-    input type="number" name="sets_4" placeholder="Sets" min="1"/
+        br/
+        input type="text" name="exercise_4" list="exercise_names" placeholder="Exercise 4" /
+        input type="number" name="weight_4" placeholder="Weight (kg)" min="0"/
+        input type="number" name="reps_4" placeholder="Repitions" min="1"/
+        input type="number" name="sets_4" placeholder="Sets" min="1"/
 
-    br/
-    input type="text" name="exercise_5" list="exercise_names" placeholder="Exercise 5" /
-    input type="number" name="weight_5" placeholder="Weight (kg)" min="0"/
-    input type="number" name="reps_5" placeholder="Repitions" min="1"/
-    input type="number" name="sets_5" placeholder="Sets" min="1"/
+        br/
+        input type="text" name="exercise_5" list="exercise_names" placeholder="Exercise 5" /
+        input type="number" name="weight_5" placeholder="Weight (kg)" min="0"/
+        input type="number" name="reps_5" placeholder="Repitions" min="1"/
+        input type="number" name="sets_5" placeholder="Sets" min="1"/
 
-    br/
-    input type="submit" value="Create Workout"/
+        br/
+        input type="submit" value="Update Workout"/
 
-    h2 #{session[:workout_new_message]}
+    nav id="previous_workout"
+
+        h1 Date: #{@workout[:date]}
+        br/
+
+        h2 Musclegroup:
+        -@workout[:musclegroups].each do |musclegroup|
+            p #{musclegroup[0]}
+        br/
+
+        h2 Exercises: 
+        -@workout[:exercises].each do |exercise|
+            p Name: #{exercise[:exercise_name]}
+            - if exercise[:weight] == "" 
+                - weight = 0
+            - else 
+                - weight = exercise[:weight]
+            p Weight: #{weight}kg
+            p Reps: #{exercise[:reps]}
+            p Sets: #{exercise[:sets]}
+            br/
+
+h2 #{session[:workout_update_message]}

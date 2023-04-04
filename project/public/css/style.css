@@ -35,3 +35,17 @@ header{
     margin: 4px;
     width: 265px; 
 }
+
+#workout_update{
+    display: flex;
+}
+
+#workout_form_edit{
+    margin: 10px;
+}
+
+#previous_workout{
+    background-color: grey;
+    width: 200px;
+    margin-left: 80px;
+}

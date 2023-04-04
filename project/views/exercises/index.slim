@@ -6,7 +6,8 @@ h2 Exercises
 -@array_of_exercises.each do |exercise|
     nav  class="exercise_element"
         h3 Name: #{exercise[0][0]}
-        p ID: #{exercise[0][2]}
+        - if session[:user_id] == 1
+            p ID: #{exercise[0][2]}
         - i = 0
         h4 Muscles: 
         -while i < exercise.length

@@ -5,7 +5,7 @@ form action="/workouts/new" method="POST" id="workout_form"
     br/
     input type="date" name="date" id="date" /
     br/ 
-    label for="muscle_group" What musclegroups are trained 
+    label for="muscle_group" What musclegroups are trained (min 1)
     br/
     input type="text" name="musclegroup_1" list="musclegroup_names" placeholder="Musclegroup 1" id="muscle_group" /
     br/
@@ -16,7 +16,7 @@ form action="/workouts/new" method="POST" id="workout_form"
     input type="text" name="musclegroup_2" list="musclegroup_names" placeholder="Musclegroup 2" /
     br/
 
-    label for="exercises" What exercises where trained
+    label for="exercises" What exercises where trained (min 1)
     br/
 
     datalist id="exercise_names"

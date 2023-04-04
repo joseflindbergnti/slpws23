@@ -288,3 +288,40 @@ def show_specific_workout(workout_id)
         exercises: exercise_array
     }
 end
+
+def delete_workout(id)
+    db = connect_to_db()
+
+    db.execute('DELETE FROM workouts WHERE id = ?', id)
+    db.execute('DELETE FROM workout_musclegroup_rel WHERE workout_id = ?', id)
+    db.execute('DELETE FROM workout_exercise_rel WHERE workout_id = ?', id)
+
+end
+
+def workout_update(workout_id, date, musclegroup_1, musclegroup_2, exercise_array)
+    db = connect_to_db()
+
+    db.execute('DELETE FROM workout_musclegroup_rel WHERE workout_id = ?', workout_id)
+    db.execute('DELETE FROM workout_exercise_rel WHERE workout_id = ?', workout_id)
+
+    db.execute('UPDATE workouts SET date = ? WHERE id = ?', date, workout_id)
+
+    musclegroup_1_id = get_musclegroup_id(musclegroup_1)
+    musclegroup_1_id = musclegroup_1_id[0][0]
+
+    db.execute('INSERT INTO workout_musclegroup_rel (workout_id, musclegroup_id) VALUES (?, ?)', workout_id, musclegroup_1_id)
+
+    if musclegroup_2 != ""
+        musclegroup_2_id = get_musclegroup_id(musclegroup_2)
+        db.execute('INSERT INTO workout_musclegroup_rel (workout_id, musclegroup_id) VALUES (?, ?)', workout_id, musclegroup_2_id[0][0])
+    end
+
+    i = 0
+    while i < exercise_array.length
+        exercise_id = get_exercise_id(exercise_array[i][:exercise_name])
+        db.execute('INSERT INTO workout_exercise_rel (workout_id, exercise_id, weight, reps, sets) VALUES (?, ?, ?, ?, ?)', workout_id, exercise_id[0][0], exercise_array[i][:weight], exercise_array[i][:reps], exercise_array[i][:sets])
+        i += 1
+    end
+
+end
+
