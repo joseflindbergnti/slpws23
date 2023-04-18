@@ -7,6 +7,7 @@ require_relative './model.rb'
 
 enable :sessions
 
+include Model
 
 get('/')do
     session[:register_message] = ""
