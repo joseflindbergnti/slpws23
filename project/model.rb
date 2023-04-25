@@ -1,8 +1,8 @@
+# Module that contains functions
 module Model
     require 'sqlite3'
     require 'bcrypt'
     require 'sinatra/reloader'
-
 
     # Before-block that connects the other functions to the database and makes the result a hash
     def connect_to_db()
@@ -13,7 +13,7 @@ module Model
 
     # Finds all information that is connected to a username
     #
-    # @option params [String] username Searchterm
+    # @param [String] username Searchterm
     #
     # @return [Hash]
     #   * :id [Integer] The ID of the user
@@ -30,7 +30,7 @@ module Model
 
     # Finds ID that is connected to a username
     #
-    # @option params [String] username Searchterm
+    # @param [String] username Searchterm
     #
     # @return [Hash]
     #   * :id [Integer] The ID of the user
@@ -45,7 +45,7 @@ module Model
 
     # Finds firstname that is connected to a username
     #
-    # @option params [String] username Searchterm
+    # @param [String] username Searchterm
     #
     # @return [Hash]
     #   * :firstname [String] The firstname of the user
@@ -60,9 +60,9 @@ module Model
 
     # Creates a new user in the users table 
     #
-    # @option params [String] username Username of the user
-    # @option params [String] firstname Firstname of the user
-    # @option params [String] password_digest Encrypted password of the user
+    # @param [String] username Username of the user
+    # @param [String] firstname Firstname of the user
+    # @param [String] password_digest Encrypted password of the user
     #
     # @see #connect_to_db
     def register_user(username, firstname, password_digest)
@@ -124,7 +124,7 @@ module Model
 
     # Finds ID for the muscle name
     #
-    # @option params [String] muscle_name Name of the muscle
+    # @param [String] muscle_name Name of the muscle
     #
     # @return [Hash]
     #   * :id [Integer] The ID of the muscle
@@ -139,7 +139,7 @@ module Model
 
     # Finds ID for the exercise name
     #
-    # @option params [String] exercise_name Name of the exercise
+    # @param [String] exercise_name Name of the exercise
     #
     # @return [Hash]
     #   * :id [Integer] The ID of the exercise
@@ -154,7 +154,7 @@ module Model
 
     # Finds ID for the musclegroup name
     #
-    # @option params [String] musclegroup_name Name of the exercise
+    # @param [String] musclegroup_name Name of the exercise
     #
     # @return [Hash]
     #   * :id [Integer] The ID of the musclegroup
@@ -169,7 +169,7 @@ module Model
 
     # Finds all dates of the workouts connected to a user
     #
-    # @option params [Interger] user_id ID of the user
+    # @param [Interger] user_id ID of the user
     #
     # @return [Hash]
     #   * :date [Integer] The date of the workout
@@ -184,7 +184,7 @@ module Model
 
     # Finds user ID for a workout
     #
-    # @option params [Interger] id ID of the workout
+    # @param [Interger] id ID of the workout
     #
     # @return [Hash]
     #   * :user_id [Integer] The ID of the user
@@ -199,10 +199,10 @@ module Model
 
     # Creates a new exercise in the exercises table and exercise_muscle_rel table
     #
-    # @option params [String] exercise_name Name of the exercise
-    # @option params [String] muscle_1 Muscle used in the exercise
-    # @option params [String] muscle_2 Muscle used in the exercise
-    # @option params [String] muscle_3 Muscle used in the exercise
+    # @param [String] exercise_name Name of the exercise
+    # @param [String] muscle_1 Muscle used in the exercise
+    # @param [String] muscle_2 Muscle used in the exercise
+    # @param [String] muscle_3 Muscle used in the exercise
     #
     # @see #connect_to_db
     def exercise_new(exercise_name, muscle_1, muscle_2, muscle_3)
@@ -229,7 +229,7 @@ module Model
         end
     end
 
-    # Finds all information for an exercise in the tables exercise and exercise_muscle_rel
+    # Finds all information for all exercises in the tables exercise and exercise_muscle_rel
     #
     # @return [Array]
     #   * :exercise_name [String] The name of the exercise
@@ -262,6 +262,15 @@ module Model
         return array_of_exercises
     end
 
+    # Finds all information for an exercise in the tables exercise and exercise_muscle_rel
+    #
+    # @return [Hash]
+    #   * :exercise_name [String] The name of the exercise
+    #   * :muscle_name [String] The name of the muscles used
+    #   * :id [Integer] The ID of the exercise
+    # @return [nil] if not found 
+    #
+    # @see #connect_to_db
     def show_specific_exercise(exercise_id)
         db = connect_to_db()
 
@@ -275,6 +284,11 @@ module Model
 
     end
 
+    # Deletes an exercise
+    #
+    # @param [Integer] id ID of the exercise
+    #
+    # @see #connect_to_db
     def delete_exercise(id)
         db = connect_to_db()
 
@@ -283,6 +297,13 @@ module Model
 
     end
 
+    # Updates the information of an exercise
+    #
+    # @param [Integer] exercise_id ID of the exercise
+    # @param [String] exercise_name Name of the exercise
+    # @param [Array] muscles_array Array containing the muscles used
+    #
+    # @see #connect_to_db
     def edit_exercise(exercise_id, exercise_name, muscles_array)
         db = connect_to_db()
 
@@ -301,6 +322,15 @@ module Model
         end
     end
 
+    # Creates a new workout in the workout, workout_exercise_rel and workout_musclegroup_rel tables
+    #
+    # @param [Integer] user_id ID of the user connected to the workout
+    # @param [Integer] date Date of the workout 
+    # @param [String] musclegroup_1 Musclegroup used in the exercise
+    # @param [String] musclegroup_2 Musclegroup used in the exercise
+    # @param [Array] exercise_array Array containing the exercises information
+    #
+    # @see #connect_to_db
     def workout_new(user_id, date, musclegroup_1, musclegroup_2, exercise_array)
         db = connect_to_db()
         db.results_as_hash = false
@@ -328,6 +358,18 @@ module Model
 
     end
 
+    # Finds all information for all workouts connected to a user
+    #
+    # @param [Integer] user_id The users ID
+    #
+    # @return [Array]
+    #   * :id [Integer] ID of the workout
+    #   * :date [Integer] Date of the workout
+    #   * :musclegroups [Hash] The musclegroups used in the workout
+    #   * :musclegroups [Array] Array containing exercise_name, reps, sets and weight of an exercise
+    # @return [nil] if not found 
+    #
+    # @see #connect_to_db
     def show_workouts(user_id)
         db = connect_to_db()
 
@@ -378,7 +420,18 @@ module Model
         return array_of_workouts
     end
 
-
+    # Finds all information for a specific workout
+    #
+    # @param [Integer] workout_id The workouts ID
+    #
+    # @return [Hash]
+    #   * :id [Integer] ID of the workout
+    #   * :date [Integer] Date of the workout
+    #   * :musclegroups [Hash] The musclegroups used in the workout
+    #   * :musclegroups [Array] Array containing exercise_name, reps, sets and weight of an exercise
+    # @return [nil] if not found 
+    #
+    # @see #connect_to_db
     def show_specific_workout(workout_id)
         db = connect_to_db()
         
@@ -418,6 +471,11 @@ module Model
         }
     end
 
+    # Deletes an workout
+    #
+    # @param [Integer] id ID of the workout
+    #
+    # @see #connect_to_db
     def delete_workout(id)
         db = connect_to_db()
 
@@ -427,6 +485,15 @@ module Model
 
     end
 
+    # Updates the information of an workout
+    #
+    # @param [Integer] workout_id ID of the workout
+    # @param [Integer] date The date of the workout
+    # @param [String] musclegroup_1 Musclegroup used
+    # @param [String] musclegroup_2 Musclegroup used
+    # @param [Array] exercise_array Array containing the exercises
+    #
+    # @see #connect_to_db
     def workout_update(workout_id, date, musclegroup_1, musclegroup_2, exercise_array)
         db = connect_to_db()
 

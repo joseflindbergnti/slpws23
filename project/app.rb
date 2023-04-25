@@ -9,16 +9,23 @@ enable :sessions
 
 include Model
 
+# Displays landing page and resets session messages
+#
 get('/')do
     session[:register_message] = ""
     session[:login_message] = ""
     slim(:index)
 end
 
+# Displays route that user gets redirected to when they do not have authority to a route
+#
 get('/error')do
     slim(:error)
 end
 
+# Function that validates that the user is logged in
+#
+# @return [Boolean]
 def check_if_user_is_logged_in()
     if session[:user_id] == nil
         return false
@@ -27,6 +34,9 @@ def check_if_user_is_logged_in()
     end
 end
 
+# Displays a users workouts or redirects if the user is not logged in
+#
+# @see Model#show_workouts
 get('/workouts')do
     session[:workout_new_message] = ""
     session[:workout_update_message] = ""
@@ -34,12 +44,19 @@ get('/workouts')do
         session[:login_message] = "You need to login to have access workouts"
         redirect('/login')
     else
-        user_id = session[:user_id] ##fråga om detta är sättet som man ska spara användardatan
+        user_id = session[:user_id]
         @array_of_workouts = show_workouts(user_id)
         slim(:'workouts/index')
     end
 end
 
+# Displays a specific workout
+#
+# @param [Integer] :id ID of the workout
+#
+# @see #check_if_user_is_logged_in
+# @see Model#get_workout_user
+# @see Model#show_specific_workout
 get('/workouts/:id/edit')do
     if check_if_user_is_logged_in() == false
         session[:error_message] = "You do not have access to this functionality"
@@ -56,6 +73,15 @@ get('/workouts/:id/edit')do
 
 end
 
+# Displays a specific workout update form
+#
+# @param [Integer] :id ID of the workout
+#
+# @see #check_if_user_is_logged_in
+# @see Model#get_workout_user
+# @see Model#get_all_musclegroup_names
+# @see Model#get_all_exercise_names
+# @see Model#show_specific_workout
 get('/workouts/:id/update')do
     if check_if_user_is_logged_in() == false
         session[:error_message] = "You do not have access to this functionality"
@@ -73,6 +99,15 @@ get('/workouts/:id/update')do
     slim(:'workouts/update')
 end
 
+# Updates a workouts information and redirects to '/workouts'
+#
+# @param [Integer] :id ID of the workout
+#
+# @see #check_if_user_is_logged_in
+# @see Model#get_dates_for_workouts
+# @see Model#get_workout_user
+# @see #check_workout_inputs
+# @see Model#workout_update
 post('/workouts/:id/update')do
     workout_id = params[:id]
 
@@ -214,12 +249,26 @@ post('/workouts/:id/update')do
 
 end
 
+# Displays form to create new workout
+#
+# @see Model#get_all_musclegroup_names
+# @see Model#get_all_exercise_names
 get('/workouts/new')do
     @musclegroup_names = get_all_musclegroup_names()
     @exercise_names = get_all_exercise_names()
     slim(:'workouts/new')
 end
 
+# Function that checks all the inputs from an workout form
+#
+# @param [String] exercise Name of the exercise
+# @param [Integer] reps Amount of reps for the exercise
+# @param [Integer] sets Amount of sets for the exercise
+# @param [Integer] number Which exercise the function regards
+#
+# @see Model#get_all_exercise_names
+#
+# @return [Boolean]
 def check_workout_inputs(exercise, reps, sets, number)
     exercise_names = get_all_exercise_names()
     i = 0
@@ -244,6 +293,12 @@ def check_workout_inputs(exercise, reps, sets, number)
     return true
 end
 
+# Creates a new workout and redirects to 'workouts/new'
+# 
+# @see #check_if_user_is_logged_in
+# @see Model#get_dates_for_workouts
+# @see #check_workout_inputs
+# @see Model#workout_new
 post('/workouts/new')do
 
     if check_if_user_is_logged_in() == false
@@ -380,12 +435,20 @@ post('/workouts/new')do
     redirect('/workouts/new')
 end
 
+# Delets an workout and redirects to '/workouts'
+#
+# @param [Integer] :id ID of the workout
+#
+# @see Model#delete_workout
 post('/workouts/:id/delete')do
     id = params[:id]
     delete_workout(id)
     redirect('/workouts')
 end
 
+# Displays all exercises
+#
+# @see Model#show_all_exercises
 get('/exercises')do
     session[:exercise_new_message] = ""
 
@@ -394,6 +457,11 @@ get('/exercises')do
     slim(:'exercises/index')
 end
 
+# Displays specific exercises
+#
+# @param [Integer] :id ID of the exercise
+#
+# @see Model#show_specific_exercise
 get('/exercises/:id/edit')do
     if session[:user_id] != 1
         session[:error_message] = "You do not have access to this functionality"
@@ -405,12 +473,21 @@ get('/exercises/:id/edit')do
     end
 end
 
+# Deletes a exercise and redirects to '/exercises'
+#
+# @param [Integer] :id ID of the exercise
 post('/exercises/:id/delete')do
     id = params[:id]
     delete_exercise(id)
     redirect('/exercises')
 end
 
+# Displays a specific exercise update form
+# 
+# @param [Integer] :id ID of the exercise
+#
+# @see Model#show_specific_exercise
+# @see Model#get_all_muscle_names
 get('/exercises/:id/update')do
     @id = params[:id]
     @exercise_update = show_specific_exercise(@id)
@@ -418,6 +495,13 @@ get('/exercises/:id/update')do
     slim(:'exercises/update')
 end
 
+# Function that checks if a muscle name sent through a form is in the database
+#
+# @param [String] muscle_name Name of the muscle
+#
+# @see Model#get_all_muscle_names
+#
+# @return [Boolean]
 def check_muscle_name(muscle_name)
     if muscle_name == ""
         return true
@@ -434,6 +518,18 @@ def check_muscle_name(muscle_name)
     return false
 end
 
+# Updates a exercises information and redirects to '/exercises'
+# 
+# @param [Integer] :id ID of the exercise
+# @param [String] :exercise_name Name of the exercise
+# @param [String] :muscle_1 Name of the muscle used
+# @param [String] :muscle_2 Name of the muscle used
+# @param [String] :muscle_3 Name of the muscle used
+#
+# @see Model#get_all_exercise_names
+# @see Model#get_exercise_id
+# @see #check_muscle_name
+# @see Model#edit_exercise
 post('/exercises/:id/update') do
     id = params[:id]
     exercise_name = params[:exercise_name]
@@ -488,12 +584,25 @@ post('/exercises/:id/update') do
 
 end
 
+# Displays form to create new exercises
+#
+# @see Model#get_all_muscle_names
 get('/exercises/new')do
 
     @muscle_names = get_all_muscle_names()
     slim(:'exercises/new')
 end
 
+# Creates a new exercise and redirects to '/exercises/new'
+#
+# @param [String] :exercise_name Name of the exercise
+# @param [String] :muscle_1 Name of the muscle used
+# @param [String] :muscle_2 Name of the muscle used
+# @param [String] :muscle_3 Name of the muscle used
+#
+# @see Model#get_all_exercise_names
+# @see #check_muscle_name
+# @see Model#exercise_new
 post('/exercises/new')do
     exercise_name = params[:exercise_name]
     muscle_1 = params[:muscle_1]
@@ -534,10 +643,18 @@ post('/exercises/new')do
 
 end
 
+# Displays login route
+#
 get('/login')do
     slim(:login)
 end
 
+# Logs a user in to the site and redirects to '/'
+#
+# @param [String] :username The username submitted by the user
+# @param [String] :password The password submitet by the user
+#
+# @see Model#get_all_for_username
 post('/users/login') do
     username = params[:username]
     password = params[:password]
@@ -569,10 +686,23 @@ post('/users/login') do
 
 end
 
+# Displays the register new user route
+#
 get('/register')do
     slim(:register)
 end
 
+# Creates new user and redirects to '/'
+# 
+# @param [String] :username The username submitted by the user
+# @param [String] :firstname The firstname submitted by the user
+# @param [String] :password The password submitet by the user
+# @param [String] :password_confirm The password submitet by the user for the second time
+#
+# @see Model#get_all_usernames
+# @see Model#register_user
+# @see Model#get_user_id
+# @see Model#get_user_firstname
 post('/users/new') do
     username = params[:username]
     firstname = params[:firstname]
@@ -609,6 +739,8 @@ post('/users/new') do
 
 end
 
+# Logs the user out of the site and redirects to '/login'
+# 
 post('/users/logout')do
     session[:login_message] = "You have logged out"
     session[:user_id] = nil
