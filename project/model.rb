@@ -476,13 +476,19 @@ module Model
     # @param [Integer] id ID of the workout
     #
     # @see #connect_to_db
-    def delete_workout(id)
+    def delete_workout(id, user_id)
         db = connect_to_db()
 
-        db.execute('DELETE FROM workouts WHERE id = ?', id)
-        db.execute('DELETE FROM workout_musclegroup_rel WHERE workout_id = ?', id)
-        db.execute('DELETE FROM workout_exercise_rel WHERE workout_id = ?', id)
-
+        workout_id_compare = db.execute('SELECT id FROM workouts WHERE user_id = ?', user_id)
+        i = 0
+        while i < workout_id_compare.length
+            if workout_id_compare[i] == id
+                db.execute('DELETE FROM workouts WHERE id = ?', id)
+                db.execute('DELETE FROM workout_musclegroup_rel WHERE workout_id = ?', id)
+                db.execute('DELETE FROM workout_exercise_rel WHERE workout_id = ?', id)
+            end
+            i += 1
+        end
     end
 
     # Updates the information of an workout

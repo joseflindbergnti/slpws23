@@ -23,45 +23,54 @@ get('/error')do
     slim(:error)
 end
 
-# Function that validates that the user is logged in
+# Before block that checks if user is admin on certain routes
 #
-# @return [Boolean]
-def check_if_user_is_logged_in()
+before('/admin/*')do
+    if session[:user_id] != 1
+        session[:error_message] = "You do not have access to this route"
+        redirect("/error")
+    end
+end
+
+# Before block that checks if the user is logged in to have access to workout routes
+#
+before('/workouts/*')do
     if session[:user_id] == nil
-        return false
-    else 
-        return true
+        session[:login_message] = "You need to login to have access workouts"
+        redirect('/login')
+    end
+end
+
+# Before block that checks if the user is logged in to have access to exercises
+#
+before('/exercises/*')do
+    if session[:user_id] == nil
+        session[:login_message] = "You need to login to have access to create exercises"
+        redirect('/login')
     end
 end
 
 # Displays a users workouts or redirects if the user is not logged in
 #
 # @see Model#show_workouts
-get('/workouts')do
+get('/workouts/show')do
     session[:workout_new_message] = ""
     session[:workout_update_message] = ""
-    if session[:user_id] == nil
-        session[:login_message] = "You need to login to have access workouts"
-        redirect('/login')
-    else
-        user_id = session[:user_id]
-        @array_of_workouts = show_workouts(user_id)
-        slim(:'workouts/index')
-    end
+    session[:login_message] = ""
+
+    user_id = session[:user_id]
+    @array_of_workouts = show_workouts(user_id)
+    slim(:'workouts/index')
 end
 
 # Displays a specific workout
 #
 # @param [Integer] :id ID of the workout
 #
-# @see #check_if_user_is_logged_in
 # @see Model#get_workout_user
 # @see Model#show_specific_workout
 get('/workouts/:id/edit')do
-    if check_if_user_is_logged_in() == false
-        session[:error_message] = "You do not have access to this functionality"
-        redirect('/error')
-    end
+
     workout_id = params[:id]
     if get_workout_user(workout_id)[0][0] != session[:user_id]
         session[:error_message] = "You do not have the ownership of this workout"
@@ -77,16 +86,12 @@ end
 #
 # @param [Integer] :id ID of the workout
 #
-# @see #check_if_user_is_logged_in
 # @see Model#get_workout_user
 # @see Model#get_all_musclegroup_names
 # @see Model#get_all_exercise_names
 # @see Model#show_specific_workout
 get('/workouts/:id/update')do
-    if check_if_user_is_logged_in() == false
-        session[:error_message] = "You do not have access to this functionality"
-        redirect('/error')
-    end
+
     workout_id = params[:id]
     if get_workout_user(workout_id)[0][0] != session[:user_id]
         session[:error_message] = "You do not have the ownership of this workout"
@@ -99,25 +104,17 @@ get('/workouts/:id/update')do
     slim(:'workouts/update')
 end
 
-# Updates a workouts information and redirects to '/workouts'
+# Updates a workouts information and redirects to '/workouts/show'
 #
 # @param [Integer] :id ID of the workout
 #
-# @see #check_if_user_is_logged_in
 # @see Model#get_dates_for_workouts
 # @see Model#get_workout_user
 # @see #check_workout_inputs
 # @see Model#workout_update
 post('/workouts/:id/update')do
     workout_id = params[:id]
-
-    if check_if_user_is_logged_in() == false
-        session[:error_message] = "You do not have access to this functionality"
-        redirect('/error')
-    end
-
     date = params[:date]
-    
 
     if date == ""
         session[:workout_update_message] = "Choose a date"
@@ -245,7 +242,7 @@ post('/workouts/:id/update')do
 
     workout_update(workout_id, date, musclegroup_1, musclegroup_2, workout_exercise_array)
 
-    redirect('/workouts')
+    redirect('/workouts/show')
 
 end
 
@@ -295,20 +292,12 @@ end
 
 # Creates a new workout and redirects to 'workouts/new'
 # 
-# @see #check_if_user_is_logged_in
 # @see Model#get_dates_for_workouts
 # @see #check_workout_inputs
 # @see Model#workout_new
 post('/workouts/new')do
-
-    if check_if_user_is_logged_in() == false
-        session[:error_message] = "You do not have access to this functionality"
-        redirect('/error')
-    end
-
     date = params[:date]
     
-
     if date == ""
         session[:workout_new_message] = "Choose a date"
         redirect('/workouts/new')
@@ -435,15 +424,16 @@ post('/workouts/new')do
     redirect('/workouts/new')
 end
 
-# Delets an workout and redirects to '/workouts'
+# Delets an workout and redirects to '/workouts/show'
 #
 # @param [Integer] :id ID of the workout
 #
 # @see Model#delete_workout
 post('/workouts/:id/delete')do
     id = params[:id]
-    delete_workout(id)
-    redirect('/workouts')
+    user_id = session[:user_id]
+    delete_workout(id, user_id)
+    redirect('/workouts/show')
 end
 
 # Displays all exercises
@@ -451,6 +441,7 @@ end
 # @see Model#show_all_exercises
 get('/exercises')do
     session[:exercise_new_message] = ""
+    session[:login_message] = ""
 
     @array_of_exercises = show_all_exercises()
 
@@ -462,21 +453,16 @@ end
 # @param [Integer] :id ID of the exercise
 #
 # @see Model#show_specific_exercise
-get('/exercises/:id/edit')do
-    if session[:user_id] != 1
-        session[:error_message] = "You do not have access to this functionality"
-        redirect('/error')
-    else
-        @exercise_id = params[:id]
-        @exercise_information = show_specific_exercise(@exercise_id)
-        slim(:'exercises/edit')
-    end
+get('/admin/exercises/:id/edit')do
+    @exercise_id = params[:id]
+    @exercise_information = show_specific_exercise(@exercise_id)
+    slim(:'exercises/edit')
 end
 
 # Deletes a exercise and redirects to '/exercises'
 #
 # @param [Integer] :id ID of the exercise
-post('/exercises/:id/delete')do
+post('/admin/exercises/:id/delete')do
     id = params[:id]
     delete_exercise(id)
     redirect('/exercises')
@@ -488,7 +474,7 @@ end
 #
 # @see Model#show_specific_exercise
 # @see Model#get_all_muscle_names
-get('/exercises/:id/update')do
+get('/admin/exercises/:id/update')do
     @id = params[:id]
     @exercise_update = show_specific_exercise(@id)
     @muscle_names = get_all_muscle_names()
@@ -530,17 +516,17 @@ end
 # @see Model#get_exercise_id
 # @see #check_muscle_name
 # @see Model#edit_exercise
-post('/exercises/:id/update') do
+post('/admin/exercises/:id/update') do
+
     id = params[:id]
     exercise_name = params[:exercise_name]
     muscle_1 = params[:muscle_1]
     muscle_2 = params[:muscle_2]
     muscle_3 = params[:muscle_3]
-
     
     if (exercise_name == "" || muscle_1 == "")
         session[:exercise_update_message] = "Fill in a name and at least 1 muscle"
-        redirect("/exercises/#{id}/update")
+        redirect("/admin/exercises/#{id}/update")
     end
 
     exercise_name_compare = get_all_exercise_names()
@@ -553,7 +539,7 @@ post('/exercises/:id/update') do
             
             if id_compare[0][0] != id.to_i
                 session[:exercise_update_message] = "This exercise already excists"
-                redirect("/exercises/#{id}/update")
+                redirect("/admin/exercises/#{id}/update")
             end
         end
         i += 1
@@ -561,13 +547,13 @@ post('/exercises/:id/update') do
 
     if check_muscle_name(muscle_1) == false
         session[:exercise_update_message] = "Muscle 1 does not exist"
-        redirect("/exercises/#{id}/update")
+        redirect("/admin/exercises/#{id}/update")
     elsif check_muscle_name(muscle_2) == false
         session[:exercise_update_message] = "Muscle 2 does not exist"
-        redirect("/exercises/#{id}/update")
+        redirect("/admin/exercises/#{id}/update")
     elsif check_muscle_name(muscle_3) == false
         session[:exercise_update_message] = "Muscle 3 does not exist"
-        redirect("/exercises/#{id}/update")
+        redirect("/admin/exercises/#{id}/update")
     end
 
     if muscle_2 == ""
@@ -649,6 +635,40 @@ get('/login')do
     slim(:login)
 end
 
+# Function that stops the user from trying to log in to many times
+#
+def cooldown()
+
+    if session[:login_lock] == "true" && Time.now.to_i - session[:login_lock_time].to_i < 30
+        session[:time] = []
+        session[:login_message] = "You do not have access to login, #{30 - (Time.now.to_i - session[:login_lock_time].to_i)} seconds left"
+        redirect('/login')
+    end
+
+    session[:login_lock] = "" 
+
+    timenow = Time.now
+    if session[:time] == nil
+      session[:time] = [timenow]
+    else
+      session[:time].prepend(timenow)
+    end
+    timediff = timenow.to_i-session[:time][1].to_i
+    if timediff < 4 && session[:time].length > 1
+        sleep(2)
+    end
+
+    if session[:time].length > 3
+        if Time.now.to_i - session[:time][3].to_i < 20
+            session[:login_message] = "You do not have access to login, 30 seconds"
+            session[:login_lock_time] = Time.now
+            session[:login_lock] = "true" 
+        end
+    end
+
+end
+
+
 # Logs a user in to the site and redirects to '/'
 #
 # @param [String] :username The username submitted by the user
@@ -656,6 +676,8 @@ end
 #
 # @see Model#get_all_for_username
 post('/users/login') do
+    cooldown()
+
     username = params[:username]
     password = params[:password]
 
@@ -689,6 +711,7 @@ end
 # Displays the register new user route
 #
 get('/register')do
+    cooldown()
     slim(:register)
 end
 
@@ -704,6 +727,7 @@ end
 # @see Model#get_user_id
 # @see Model#get_user_firstname
 post('/users/new') do
+    cooldown()
     username = params[:username]
     firstname = params[:firstname]
     password = params[:password]
